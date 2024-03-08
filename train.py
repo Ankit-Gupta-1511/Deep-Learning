@@ -11,7 +11,6 @@ from generate_training_gif import store_progress_gif
 print("Loading Data...")
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True)
 
-# Assuming generator, discriminator, optimizer_G, optimizer_D, criterion, dataloader are defined
 latent_dim = 100
 num_epochs = 50
 
@@ -30,7 +29,7 @@ criterion = nn.BCELoss()
 # Fixed noise for monitoring the progress
 fixed_noise = torch.randn(64, latent_dim)
 
-# Function to save a grid of generated images
+
 def save_generated_images(generator, fixed_noise, epoch, output_dir="training_images"):
     with torch.no_grad():
         # Generate images from the fixed noise to monitor progress
@@ -74,7 +73,6 @@ for epoch in range(num_epochs):
 
 print("Training process has finished.")
 
-# Assuming generator and discriminator are your model instances
 torch.save(generator.state_dict(), 'model/generator.pth')
 torch.save(discriminator.state_dict(), 'model/discriminator.pth')
 print("Saved Generator and Discriminator models.")
