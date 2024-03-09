@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torchvision.utils as vutils
+from torchviz import make_dot
 
 from gan import Generator, Discriminator
 from preprocess_data import dataset
@@ -27,13 +28,15 @@ optimizer_D = torch.optim.Adam(discriminator.parameters(), lr=0.0002, betas=(0.5
 criterion = nn.BCELoss()
 
 # Fixed noise for monitoring the progress
-fixed_noise = torch.randn(64, latent_dim)
+fixed_noise = torch.randn(28, latent_dim)
+
+generator_output = None
+discriminator_output = None
 
 
-def save_generated_images(generator, fixed_noise, epoch, output_dir="training_images"):
+def save_generated_images(generator_output, fixed_noise, epoch, output_dir="training_images"):
     with torch.no_grad():
-        # Generate images from the fixed noise to monitor progress
-        generated = generator(fixed_noise).detach().cpu()
+        generated = generator_output.detach().cpu()
     img_grid = vutils.make_grid(generated, padding=2, normalize=True)
     vutils.save_image(img_grid, f"{output_dir}/epoch_{epoch}.png")
 
@@ -48,9 +51,11 @@ for epoch in range(num_epochs):
         #  Train Generator
         # ---------------------
         optimizer_G.zero_grad()
-        z = torch.randn(imgs.size(0), latent_dim)
+        z = torch.randn(imgs.size(0), latent_dim) # latent vector
         gen_imgs = generator(z)
-        g_loss = criterion(discriminator(gen_imgs), valid)
+        generator_output = gen_imgs
+        discriminator_output = discriminator(gen_imgs)
+        g_loss = criterion(discriminator_output, valid)
         g_loss.backward()
         optimizer_G.step()
 
@@ -69,7 +74,7 @@ for epoch in range(num_epochs):
             print(f"Epoch [{epoch+1}/{num_epochs}] Batch {i}/{len(dataloader)} Loss D: {d_loss.item()}, loss G: {g_loss.item()}")
 
     if epoch % 1 == 0:  # Save images every epoch
-        save_generated_images(generator, fixed_noise, epoch)    
+        save_generated_images(generator_output, fixed_noise, epoch)    
 
 print("Training process has finished.")
 
@@ -78,3 +83,11 @@ torch.save(discriminator.state_dict(), 'model/discriminator.pth')
 print("Saved Generator and Discriminator models.")
 
 store_progress_gif()
+
+
+gen_vis_graph = make_dot(generator_output, params=dict(generator.named_parameters()))
+gen_vis_graph.render('training_output/generator_architecture', format='png')
+
+# Visualize the Discriminator
+disc_vis_graph = make_dot(discriminator_output, params=dict(discriminator.named_parameters()))
+disc_vis_graph.render('training_output/discriminator_architecture', format='png')
