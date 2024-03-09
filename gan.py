@@ -5,9 +5,6 @@ class Generator(nn.Module):
         super(Generator, self).__init__()
         self.img_shape = img_shape
         
-        # Calculate the initial size
-        # The target is to match the final convolution output to img_shape dimensions
-        # Let's start with an intermediate spatial size that will be upscaled to 28x20
         self.init_height, self.init_width = img_shape[1] // 4, img_shape[2] // 4
         self.l1_output_features = 128 * self.init_height * self.init_width
         self.l1 = nn.Sequential(nn.Linear(input_dim, self.l1_output_features))
@@ -51,7 +48,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2, inplace=True),
             nn.Dropout(0.25),
             nn.Flatten(),
-            nn.Linear(256 * 3 * 2, 1),  # Corrected to match actual output size
+            nn.Linear(256 * 3 * 2, 1),  # Corrected to match actual output size calculated from convolutional layers
             nn.Sigmoid()
         )
 

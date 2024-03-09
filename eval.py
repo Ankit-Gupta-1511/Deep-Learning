@@ -1,5 +1,5 @@
 import torch
-from torchvision.utils import save_image
+from torchvision.utils import save_image, make_grid
 import numpy as np
 import os
 
@@ -24,6 +24,9 @@ def generate_images(generator, num_images, latent_dim, output_dir):
         # Save images
         for i, image in enumerate(images):
             save_image(image, os.path.join(output_dir, f"image_{i+1}.png"))
+            
+    img_grid = make_grid(images, padding=2, normalize=True)
+    save_image(img_grid, f"{output_dir}/output.png")
     print(f"Generated {num_images} images in {output_dir}")
 
 
