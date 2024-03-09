@@ -52,6 +52,7 @@ Generator Loss: 0.822232723236084
 #### Generated Samples
 
 Here are some of the generateed samples on the pretrained model.
+
 ![Alt text](training_output/output.png)
 
 
